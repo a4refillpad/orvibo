@@ -19,7 +19,7 @@ metadata {
 		capability "Sensor"
         capability "Battery"
 
-		fingerprint profileId: "0104", deviceId: "0402", inClusters: "0000,0001,0003,0009,0500", outClusters: "0000"
+		fingerprint profileId: "0104", deviceId: "040", inClusters: "0000,0001,0003,0009,0500", outClusters: "0000"
 
 	}
 
