@@ -11,7 +11,7 @@
  *
  *  Orvibo Contact Sensor Device Type
  *  Battery updates periodically. For instant update press phyical button on sensor once
- *
+ *  30/04/2016 fixed fingerprint
  */
 metadata {
 	definition (name: "Orvibo Contact Sensor", namespace: "a4refillpad", author: "Wayne Man") {
