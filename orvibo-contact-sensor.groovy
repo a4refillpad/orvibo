@@ -13,7 +13,7 @@
  *  for the specific language governing permissions and limitations under the License.
  *
  *  Orvibo Contact Sensor Device Type
- *  Battery updates periodically. For instant update press phyical button on sensor once
+ *  Battery levels updates periodically, for an instant update press physical button on sensor once
  *  30/04/2016 fixed fingerprint
  */
 metadata {
