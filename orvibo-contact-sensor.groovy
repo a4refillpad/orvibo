@@ -17,9 +17,9 @@ metadata {
 	definition (name: "Orvibo Contact Sensor", namespace: "a4refillpad", author: "Wayne Man") {
 		capability "Contact Sensor"
 		capability "Sensor"
-        capability "Battery"
+        	capability "Battery"
 
-		fingerprint profileId: "0104", deviceId: "040", inClusters: "0000,0001,0003,0009,0500", outClusters: "0000"
+		fingerprint inClusters: "0000,0001,0003,0500", manufacturer: "\u6B27\u745E", model: "75a4bfe8ef9c4350830a25d13e3ab068"
 
 	}
 
