@@ -15,6 +15,7 @@
  *  Orvibo Contact Sensor Device Type
  *  Battery levels updates periodically, for an instant update press physical button on sensor once
  *  30/04/2016 fixed fingerprint
+ *  09/05/2016 added heartbeat to help track if sensor is alive (recommend using a devicecheck smartapp)
  */
 metadata {
 	definition (name: "Orvibo Contact Sensor", namespace: "a4refillpad", author: "Wayne Man") {
@@ -56,6 +57,7 @@ def parse(String description) {
 	def name = null
 	def value = description
    	def descriptionText = null
+   	def now = new Date()
     log.debug "Parsing: ${description}"
     Map map = [:]
 
@@ -72,6 +74,8 @@ def parse(String description) {
 	
 	def result = createEvent(name: name, value: value)
 	log.debug "Parse returned ${result?.descriptionText}"
+//  send event for heartbeat    
+    	sendEvent(name: "heartbeat", value: now)
 	listResult << result
     
    	if (listMap) {
