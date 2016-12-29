@@ -22,7 +22,7 @@ metadata {
 		capability "Contact Sensor"
 		capability "Sensor"
         	capability "Battery"
-		attribute "lastCheckedIn", "String"
+		attribute "lastCheckin", "String"
 		
 		fingerprint inClusters: "0000,0001,0003,0500", manufacturer: "\u6B27\u745E", model: "75a4bfe8ef9c4350830a25d13e3ab068"
 
@@ -76,7 +76,7 @@ def parse(String description) {
 	def result = createEvent(name: name, value: value)
 	log.debug "Parse returned ${result?.descriptionText}"
 //  send event for heartbeat    
-    	sendEvent(name: "lastCheckedIn", value: now)
+    	sendEvent(name: "lastCheckin", value: now)
 	listResult << result
     
    	if (listMap) {
