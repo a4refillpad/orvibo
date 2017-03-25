@@ -20,6 +20,8 @@
  *  extra tile formatting
  *  logging of extra information including lastopened
  *  improved heartbeat date tracking
+ *  added force override of open and closed states, removed non working refresh
+ *  conforming to 2017 Smartthings colour standards
  */
 metadata {
 	definition (name: "Orvibo Contact Sensor", namespace: "a4refillpad", author: "Wayne Man") {
@@ -30,6 +32,8 @@ metadata {
         capability "Configuration"
 
 		command "enrollResponse"
+   		command "resetClosed"
+   		command "resetOpen"
 
 		attribute "lastCheckin", "String"
 		attribute "lastOpened", "String"
@@ -48,8 +52,8 @@ metadata {
     	tiles(scale: 2) {
 		multiAttributeTile(name:"contact", type: "lighting", width: 6, height: 4) {
 			tileAttribute ("device.contact", key: "PRIMARY_CONTROL") {
-           		attributeState("open", label:'open', icon:"st.contact.contact.open", backgroundColor:"#ffa81e")
-            	attributeState("closed", label:'closed', icon:"st.contact.contact.closed", backgroundColor:"#79b821")   
+           		attributeState("open", label:'open', icon:"st.contact.contact.open", backgroundColor:"#e86d13")
+            	attributeState("closed", label:'closed', icon:"st.contact.contact.closed", backgroundColor:"#00a0dc")   
  			}
             tileAttribute("device.lastCheckin", key: "SECONDARY_CONTROL") {
     			attributeState("default", label:'Last Update: ${currentValue}',icon: "st.Health & Wellness.health9")
@@ -67,15 +71,22 @@ metadata {
 		standardTile("configure", "device.configure", inactiveLabel: false, width: 2, height: 2, decoration: "flat") {
 			state "configure", label:'', action:"configuration.configure", icon:"st.secondary.configure"
 	  	}       
-        standardTile("icon", "device.refresh", inactiveLabel: false, decoration: "flat", width: 2, height: 1) {
+        standardTile("icon", "device.refresh", inactiveLabel: false, decoration: "flat", width: 4, height: 1) {
             state "default", label:'Last Opened:'
       	}
-     	valueTile("lastopened", "device.lastOpened", decoration: "flat", inactiveLabel: false, width: 4, height: 1) {
-			state "default", label:'${currentValue}'
+     	standardTile("lastopened", "device.lastOpened", decoration: "flat", inactiveLabel: false, width: 4, height: 2) {
+			state "default", label:'Last Opened:\n\n${currentValue}'
 		}
+	  	standardTile("resetClosed", "device.resetClosed", inactiveLabel: false, decoration: "flat", width: 3, height: 1) {
+			state "default", action:"resetClosed", label: "Override Close", icon:"st.contact.contact.closed"
+	  	}
+		standardTile("resetOpen", "device.resetOpen", inactiveLabel: false, decoration: "flat", width: 3, height: 1) {
+			state "default", action:"resetOpen", label: "Override Open", icon:"st.contact.contact.open"
+	  	}
       
-		main "contact"
-        details(["contact","battery","configure","refresh","icon","lastopened"])
+      
+      main (["contact"])
+      details(["contact","battery","lastopened","resetClosed","resetOpen"])
 	}
  
 }
@@ -183,14 +194,24 @@ def enrollResponse() {
 	]
 }
 
+/*
+def refresh() {
+	log.debug "refresh requested"
+    zigbee.readAttribute(0x0001, 0x0021)
+}
+*/
 
 def refresh() {
-	log.debug "refresh called"
-	def refreshCmds = [
-		"st rattr 0x${device.deviceNetworkId} 1 1 0x21", "delay 2000"
-	]
+	log.debug "refreshing"
+    [
+        "st rattr 0x${device.deviceNetworkId} 1 21 0", "delay 500",
+        "st rattr 0x${device.deviceNetworkId} 1 21", "delay 250",
+        "st rattr 0x${device.deviceNetworkId} 1"
+    ]
+}
 
-	return refreshCmds + enrollResponse()
+def reset() {
+	sendEvent(name:"contact", value:"closed")
 }
 
 private Integer convertHexToInt(hex) {
@@ -214,4 +235,13 @@ private byte[] reverseArray(byte[] array) {
 		i++;
 	}
 	return array
+}
+
+
+def resetClosed() {
+	sendEvent(name:"contact", value:"closed")
+} 
+
+def resetOpen() {
+	sendEvent(name:"contact", value:"open")
 }
