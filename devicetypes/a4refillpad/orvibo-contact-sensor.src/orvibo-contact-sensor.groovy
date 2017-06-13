@@ -22,6 +22,8 @@
  *  improved heartbeat date tracking
  *  added force override of open and closed states, removed non working refresh
  *  conforming to 2017 Smartthings colour standards
+ *  added experimental health check as worked out by rolled54.Why
+ *  compensated for yet more smartthings font size inconsistencies
  */
 metadata {
 	definition (name: "Orvibo Contact Sensor", namespace: "a4refillpad", author: "Wayne Man") {
@@ -30,6 +32,7 @@ metadata {
         capability "Battery"
 		capability "Refresh"
         capability "Configuration"
+        capability "Health Check"
 
 		command "enrollResponse"
    		command "resetClosed"
@@ -59,23 +62,20 @@ metadata {
     			attributeState("default", label:'Last Update: ${currentValue}',icon: "st.Health & Wellness.health9")
             }
 		}
-        
-        valueTile("battery", "device.battery", inactiveLabel: false, width: 2, height: 2, decoration: "flat") {
-            state "battery", label:'${currentValue}% battery', unit:""
-        }    
-        
+      	valueTile("battery", "device.battery", decoration: "flat", inactiveLabel: false, width: 2, height: 2) {
+			state "battery", label:'${currentValue}% battery', unit:""
+	  	}  	        
  		standardTile("refresh", "device.refresh", inactiveLabel: false, decoration: "flat", width: 2, height: 2) {
             state "default", action:"refresh.refresh", icon:"st.secondary.refresh"
         }
-
 		standardTile("configure", "device.configure", inactiveLabel: false, width: 2, height: 2, decoration: "flat") {
 			state "configure", label:'', action:"configuration.configure", icon:"st.secondary.configure"
 	  	}       
-        standardTile("icon", "device.refresh", inactiveLabel: false, decoration: "flat", width: 4, height: 1) {
-            state "default", label:'Last Opened:'
+      	standardTile("icon", "device.refresh", inactiveLabel: false, decoration: "flat", width: 4, height: 1) {
+            state "default", label:'Last Opened:', icon:"st.Entertainment.entertainment15"
       	}
-     	standardTile("lastopened", "device.lastOpened", decoration: "flat", inactiveLabel: false, width: 4, height: 2) {
-			state "default", label:'Last Opened:\n\n${currentValue}'
+		valueTile("lastopened", "device.lastOpened", decoration: "flat", inactiveLabel: false, width: 4, height: 1) {
+			state "default", label:'${currentValue}'
 		}
 	  	standardTile("resetClosed", "device.resetClosed", inactiveLabel: false, decoration: "flat", width: 3, height: 1) {
 			state "default", action:"resetClosed", label: "Override Close", icon:"st.contact.contact.closed"
@@ -86,7 +86,7 @@ metadata {
       
       
       main (["contact"])
-      details(["contact","battery","lastopened","resetClosed","resetOpen"])
+      details(["contact","battery","icon","lastopened","resetClosed","resetOpen"])
 	}
  
 }
@@ -244,4 +244,16 @@ def resetClosed() {
 
 def resetOpen() {
 	sendEvent(name:"contact", value:"open")
+}
+
+def installed() {
+// Device wakes up every 1 hour, this interval allows us to miss one wakeup notification before marking offline
+	log.debug "Configured health checkInterval when installed()"
+	sendEvent(name: "checkInterval", value: 2 * 60 * 60 + 2 * 60, displayed: false, data: [protocol: "zigbee", hubHardwareId: device.hub.hardwareID])
+}
+
+def updated() {
+// Device wakes up every 1 hours, this interval allows us to miss one wakeup notification before marking offline
+	log.debug "Configured health checkInterval when updated()"
+	sendEvent(name: "checkInterval", value: 2 * 60 * 60 + 2 * 60, displayed: false, data: [protocol: "zigbee", hubHardwareId: device.hub.hardwareID])
 }
